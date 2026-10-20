@@ -18,7 +18,7 @@ public class Admin {
     }
 
     // View all books
-    public void viewBooks(ArrayList<Book> books) {
+    public void viewBooks(ArrayList<Book> books, boolean isAdmin, String studentName) {
         System.out.println("\n===== LIBRARY BOOKS =====");
 
         if (books.isEmpty()) {
@@ -31,24 +31,57 @@ public class Admin {
             System.out.println("Book ID: " + book.getBookId());
             System.out.println("Title: " + book.getTitle());
             System.out.println("Author: " + book.getAuthor());
-            System.out.println("Status: "
-                    + (book.isAvailable() ? "Available" : "Borrowed"));
+            System.out.println("Status: " + (book.isAvailable() ? "Available" : "Borrowed"));
+            if (isAdmin) {
+                if (!book.isAvailable() && book.getBorrowedBy() != null) {
+                    System.out.println("Borrower Name: " + book.getBorrowedBy());
+                    System.out.println("Borrow Date: " + book.getBorrowDate());
+                    System.out.println("Due Date: " + book.getDueDate());
+                    System.out.println("Fine: $" + String.format("%.2f", book.calculateFine()));
+                }
+            } else {
+                // Student view - only show details for own borrowed books
+                if (!book.isAvailable() && book.getBorrowedBy() != null && book.getBorrowedBy().equals(studentName)) {
+                    System.out.println("Borrower Name: " + book.getBorrowedBy());
+                    System.out.println("Borrow Date: " + book.getBorrowDate());
+                    System.out.println("Due Date: " + book.getDueDate());
+                    System.out.println("Fine: $" + String.format("%.2f", book.calculateFine()));
+                }
+            }
         }
         System.out.println("-------------------------");
     }
 
-    // Search a book by title
-    public void searchBook(ArrayList<Book> books, String title) {
+    // Search books by title or author partial match (case-insensitive)
+    public void searchBook(ArrayList<Book> books, String title, boolean isAdmin, String studentName) {
         boolean found = false;
+        String q = title.toLowerCase();
 
         for (Book book : books) {
-            if (book.getTitle().equalsIgnoreCase(title)) {
+            if (book.getTitle().toLowerCase().contains(q) ||
+                book.getAuthor().toLowerCase().contains(q)) {
                 System.out.println("\nBook Found!");
                 System.out.println("Book ID: " + book.getBookId());
                 System.out.println("Title: " + book.getTitle());
                 System.out.println("Author: " + book.getAuthor());
                 System.out.println("Status: "
                         + (book.isAvailable() ? "Available" : "Borrowed"));
+                if (isAdmin) {
+                    if (!book.isAvailable() && book.getBorrowedBy() != null) {
+                        System.out.println("Borrower Name: " + book.getBorrowedBy());
+                        System.out.println("Borrow Date: " + book.getBorrowDate());
+                        System.out.println("Due Date: " + book.getDueDate());
+                        System.out.println("Fine: $" + String.format("%.2f", book.calculateFine()));
+                    }
+                } else {
+                    // Student view - only show details for own borrowed books
+                    if (!book.isAvailable() && book.getBorrowedBy() != null && book.getBorrowedBy().equals(studentName)) {
+                        System.out.println("Borrower Name: " + book.getBorrowedBy());
+                        System.out.println("Borrow Date: " + book.getBorrowDate());
+                        System.out.println("Due Date: " + book.getDueDate());
+                        System.out.println("Fine: $" + String.format("%.2f", book.calculateFine()));
+                    }
+                }
                 found = true;
             }
         }
